@@ -1,0 +1,5 @@
+rootProject.name = 'realtimer'
+
+include "data"
+include "tracker"
+include "cli"

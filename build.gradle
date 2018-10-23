@@ -1,0 +1,24 @@
+buildscript {
+    ext {
+        helloWorldVersion = "1.0"
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
+
+allprojects {
+    group 'io.maslick.sandbox.realtimer'
+    version '1.0'
+
+    apply plugin: 'idea'
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
