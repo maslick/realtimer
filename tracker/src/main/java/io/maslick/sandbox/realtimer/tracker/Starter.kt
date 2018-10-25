@@ -3,7 +3,9 @@ package io.maslick.sandbox.realtimer.tracker
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.hazelcast.config.Config
 import io.maslick.sandbox.realtimer.data.Data
+import io.maslick.sandbox.realtimer.data.DataMessageCodec
 import io.maslick.sandbox.realtimer.data.Event
+import io.maslick.sandbox.realtimer.data.EventMessageCodec
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
@@ -31,7 +33,7 @@ class FakeRepo : Repo {
 
 class EventBusPropagator(private val eventBus: EventBus) : Propagator {
     override fun propagate(message: Data) {
-        eventBus.publish("/propagator", Json.encode(Event(message.accountId, message.data, System.currentTimeMillis())))
+        eventBus.publish("/propagator", Event(message.accountId, message.data, System.currentTimeMillis()))
     }
 }
 
@@ -47,6 +49,7 @@ fun main(args: Array<String>) {
     val options = VertxOptions()
             .setClustered(true)
             .setClusterManager(HazelcastClusterManager(hazelcastConfig))
+            .setWorkerPoolSize(80)
 
     Vertx.clusteredVertx(options) {
         if (it.succeeded()) {
@@ -54,7 +57,12 @@ fun main(args: Array<String>) {
             vertx.deployVerticle(FakeDbVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
             vertx.deployVerticle(RouterVert())
             vertx.deployVerticle(HttpServerVert())
+
+            vertx.eventBus()
+                    .registerDefaultCodec(Data::class.java, DataMessageCodec())
+                    .registerDefaultCodec(Event::class.java, EventMessageCodec())
         }
+
         else println("Error creating a Vertx cluster")
     }
 }
@@ -68,7 +76,7 @@ class HttpServerVert : AbstractVerticle() {
                 .handler { context ->
                     val id = context.request().getParam("id")
                     val data = context.queryParam("data")
-                    vertx.eventBus().send("/router", Json.encode(Data(id, data[0])))
+                    vertx.eventBus().send("/router", Data(id, data[0]))
                     context.response().end("ok")
                 }
         server.requestHandler(router::accept)
@@ -78,17 +86,17 @@ class HttpServerVert : AbstractVerticle() {
 
 class RouterVert : AbstractVerticle() {
     override fun start() {
-        vertx.eventBus().consumer<String>("/router") { message ->
-            val data = Json.decodeValue(message.body(), Data::class.java)
-            vertx.eventBus().send("/db", message.body())
+        vertx.eventBus().consumer<Data>("/router") { message ->
+            val data = message.body()
+            vertx.eventBus().send("/db", data)
         }
     }
 }
 
 class FakeDbVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle() {
     override fun start() {
-        vertx.eventBus().consumer<String>("/db") { message ->
-            val data = Json.decodeValue(message.body(), Data::class.java)
+        vertx.eventBus().consumer<Data>("/db") { message ->
+            val data = message.body()
             vertx.executeBlocking<Boolean>({ it.complete(repo.accountIdIsValid(data.accountId)) }, false) { result ->
                 if (result.succeeded()) propagator.propagate(data)
             }

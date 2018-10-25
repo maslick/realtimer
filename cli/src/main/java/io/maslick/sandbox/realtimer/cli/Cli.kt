@@ -2,7 +2,10 @@ package io.maslick.sandbox.realtimer.cli
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.hazelcast.config.Config
+import io.maslick.sandbox.realtimer.data.Data
+import io.maslick.sandbox.realtimer.data.DataMessageCodec
 import io.maslick.sandbox.realtimer.data.Event
+import io.maslick.sandbox.realtimer.data.EventMessageCodec
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.json.Json
@@ -24,8 +27,12 @@ fun main(args: Array<String>) {
     Vertx.clusteredVertx(options) {
         if (it.succeeded()) {
             val vertx = it.result()
-            vertx.eventBus().consumer<String>("/propagator") { message ->
-                val event = Json.decodeValue(message.body(), Event::class.java)
+            vertx.eventBus()
+                    .registerDefaultCodec(Data::class.java, DataMessageCodec())
+                    .registerDefaultCodec(Event::class.java, EventMessageCodec())
+
+            vertx.eventBus().consumer<Event>("/propagator") { message ->
+                val event = message.body()
                 println("/propagator: ${event.data} -> ${event.timestamp}")
             }
         }

@@ -8,6 +8,8 @@ plugins {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "org.jetbrains.kotlin:kotlin-reflect:1.2.71"
+    compile 'io.vertx:vertx-core:3.5.4'
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
 }
 
 compileKotlin {

@@ -1,5 +1,9 @@
 package io.maslick.sandbox.realtimer.tracker
 
+import io.maslick.sandbox.realtimer.data.Data
+import io.maslick.sandbox.realtimer.data.DataMessageCodec
+import io.maslick.sandbox.realtimer.data.Event
+import io.maslick.sandbox.realtimer.data.EventMessageCodec
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
@@ -22,6 +26,9 @@ class Integration {
         vertx = Vertx.vertx()
         val options = DeploymentOptions().setConfig(JsonObject().put("http.port", port))
         vertx.deployVerticle(HttpServerVert::class.java.name, options, context.asyncAssertSuccess())
+        vertx.eventBus()
+                .registerDefaultCodec(Data::class.java, DataMessageCodec())
+                .registerDefaultCodec(Event::class.java, EventMessageCodec())
     }
 
     @After
