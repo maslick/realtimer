@@ -13,6 +13,12 @@ import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 
 fun main(args: Array<String>) {
     println("Cli app")
+
+    if (args.isEmpty()) {
+        println("Please, provide clientId as 1st argument")
+        return
+    }
+
     Json.mapper.registerModule(KotlinModule())
 
     val hazelcastConfig = Config()
@@ -23,6 +29,7 @@ fun main(args: Array<String>) {
     val options = VertxOptions()
             .setClustered(true)
             .setClusterManager(HazelcastClusterManager(hazelcastConfig))
+            .setWorkerPoolSize(200)
 
     Vertx.clusteredVertx(options) {
         if (it.succeeded()) {
@@ -33,7 +40,8 @@ fun main(args: Array<String>) {
 
             vertx.eventBus().consumer<Event>("/propagator") { message ->
                 val event = message.body()
-                println("/propagator: ${event.data} -> ${event.timestamp}")
+                if (event.accountId == args[0])
+                    println("/propagator: ${event.data} -> ${event.timestamp}")
             }
         }
         else println("Error creating a Vertx cluster")

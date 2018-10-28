@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+
+<style>
+    body {
+        width: 500px;
+        margin: 0 auto;
+        font-family: monospace;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 80px;
+    }
+
+    #connect_header {
+        padding-bottom: 10px;
+    }
+
+    #messages {
+        padding: 0;
+        border: cadetblue 1px solid;
+        max-height: 600px;
+        height: 500px;
+        overflow: scroll;
+    }
+</style>
+
+<body>
+    <div class="header">
+        <h1>=Realtimer=</h1>
+        <h3>Websocket client</h3>
+    </div>
+    <div id="connect_header">
+        <input type="text" id="account_id" title="id" value="maslick">
+        <button id="btn_connect">Connect</button>
+        <button id="btn_disconnect">Disconnect</button>
+        <button id="btn_clear">Clear</button>
+    </div>
+    <div id="messages"></div>
+
+</body>
+
+<script>
+    var wss = null;
+    document.getElementById("btn_disconnect").hidden = true;
+    document.getElementById("btn_connect").hidden = false;
+    document.getElementById("account_id").readOnly = false;
+
+
+    document.getElementById("btn_connect").onclick = function (ev) {
+        document.getElementById("btn_connect").hidden = true;
+        document.getElementById("btn_disconnect").hidden = false;
+        document.getElementById("account_id").readOnly = true;
+        var account_id = document.getElementById("account_id").value;
+
+        wss = new WebSocket("ws://localhost:8081/" + account_id);
+
+        wss.onopen = function (e) { console.log("Connected."); };
+
+        wss.onmessage = function (message) {
+            console.log(message.data);
+            el = document.getElementById("messages");
+            el.textContent = message.data + el.textContent;
+        };
+
+        wss.onclose = function (ev1) {
+            console.log("connection closed!!!")
+        };
+
+        wss.onerror = function (ev1) {
+            window.alert("Error connecting to ws server");
+            document.getElementById("btn_disconnect").hidden = true;
+            document.getElementById("btn_connect").hidden = false;
+            document.getElementById("account_id").readOnly = false;
+            wss.close();
+            wss = null;
+        };
+    };
+
+    document.getElementById("btn_disconnect").onclick = function (ev) {
+        document.getElementById("btn_disconnect").hidden = true;
+        document.getElementById("btn_connect").hidden = false;
+        document.getElementById("account_id").readOnly = false;
+        wss.close();
+        wss = null;
+    };
+
+    document.getElementById("btn_clear").onclick = function (ev) {
+        document.getElementById("messages").textContent = "";
+    };
+</script>
+
+</html>

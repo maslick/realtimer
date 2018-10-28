@@ -37,36 +37,6 @@ class EventBusPropagator(private val eventBus: EventBus) : Propagator {
     }
 }
 
-fun main(args: Array<String>) {
-    println("Start app")
-    Json.mapper.registerModule(KotlinModule())
-
-    val hazelcastConfig = Config()
-    hazelcastConfig.networkConfig.join.multicastConfig.isEnabled = false
-    hazelcastConfig.networkConfig.join.tcpIpConfig.isEnabled = true
-    hazelcastConfig.networkConfig.join.tcpIpConfig.addMember("127.0.0.1")
-
-    val options = VertxOptions()
-            .setClustered(true)
-            .setClusterManager(HazelcastClusterManager(hazelcastConfig))
-            .setWorkerPoolSize(80)
-
-    Vertx.clusteredVertx(options) {
-        if (it.succeeded()) {
-            val vertx = it.result()
-            vertx.deployVerticle(FakeDbVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
-            vertx.deployVerticle(RouterVert())
-            vertx.deployVerticle(HttpServerVert())
-
-            vertx.eventBus()
-                    .registerDefaultCodec(Data::class.java, DataMessageCodec())
-                    .registerDefaultCodec(Event::class.java, EventMessageCodec())
-        }
-
-        else println("Error creating a Vertx cluster")
-    }
-}
-
 class HttpServerVert : AbstractVerticle() {
     override fun start() {
         val server = vertx.createHttpServer()
@@ -84,22 +54,62 @@ class HttpServerVert : AbstractVerticle() {
     }
 }
 
-class RouterVert : AbstractVerticle() {
+class RouterVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle() {
     override fun start() {
         vertx.eventBus().consumer<Data>("/router") { message ->
-            val data = message.body()
-            vertx.eventBus().send("/db", data)
-        }
-    }
-}
-
-class FakeDbVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle() {
-    override fun start() {
-        vertx.eventBus().consumer<Data>("/db") { message ->
             val data = message.body()
             vertx.executeBlocking<Boolean>({ it.complete(repo.accountIdIsValid(data.accountId)) }, false) { result ->
                 if (result.succeeded()) propagator.propagate(data)
             }
         }
+    }
+}
+
+class WebsocketVert : AbstractVerticle() {
+    override fun start() {
+        val server = vertx.createHttpServer()
+        server.websocketHandler { wsServer ->
+            println("new ws socket connected: ${wsServer.path()}")
+
+            vertx.eventBus().consumer<Event>("/propagator") { message ->
+                if (message.body().accountId == wsServer.path().split("/")[1]) {
+                    wsServer.writeFinalTextFrame(Json.encode(message.body()))
+                    message.reply("ok")
+                }
+            }
+        }
+
+        server.listen(8081, "localhost")
+    }
+}
+
+
+fun main(args: Array<String>) {
+    println("Start app")
+    Json.mapper.registerModule(KotlinModule())
+
+    val hazelcastConfig = Config()
+    hazelcastConfig.networkConfig.join.multicastConfig.isEnabled = false
+    hazelcastConfig.networkConfig.join.tcpIpConfig.isEnabled = true
+    hazelcastConfig.networkConfig.join.tcpIpConfig.addMember("127.0.0.1")
+
+    val options = VertxOptions()
+            .setClustered(true)
+            .setClusterManager(HazelcastClusterManager(hazelcastConfig))
+            .setWorkerPoolSize(200)
+
+    Vertx.clusteredVertx(options) {
+        if (it.succeeded()) {
+            val vertx = it.result()
+            vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
+            vertx.deployVerticle(HttpServerVert())
+            vertx.deployVerticle(WebsocketVert())
+
+            vertx.eventBus()
+                    .registerDefaultCodec(Data::class.java, DataMessageCodec())
+                    .registerDefaultCodec(Event::class.java, EventMessageCodec())
+        }
+
+        else println("Error creating a Vertx cluster")
     }
 }
