@@ -65,24 +65,6 @@ class RouterVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle(
     }
 }
 
-class WebsocketVert : AbstractVerticle() {
-    override fun start() {
-        val server = vertx.createHttpServer()
-        server.websocketHandler { wsServer ->
-            println("new ws socket connected: ${wsServer.path()}")
-
-            vertx.eventBus().consumer<Event>("/propagator") { message ->
-                if (message.body().accountId == wsServer.path().split("/")[1]) {
-                    wsServer.writeFinalTextFrame(Json.encode(message.body()))
-                    message.reply("ok")
-                }
-            }
-        }
-
-        server.listen(8081, "localhost")
-    }
-}
-
 
 fun main(args: Array<String>) {
     println("Start app")
@@ -103,7 +85,6 @@ fun main(args: Array<String>) {
             val vertx = it.result()
             vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
             vertx.deployVerticle(HttpServerVert())
-            vertx.deployVerticle(WebsocketVert())
 
             vertx.eventBus()
                     .registerDefaultCodec(Data::class.java, DataMessageCodec())

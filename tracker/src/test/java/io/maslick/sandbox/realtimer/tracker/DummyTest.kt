@@ -3,6 +3,7 @@ package io.maslick.sandbox.realtimer.tracker
 import io.vertx.core.Vertx
 import io.vertx.ext.unit.TestContext
 import io.vertx.ext.unit.junit.VertxUnitRunner
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -10,20 +11,7 @@ import org.junit.runner.RunWith
 class DummyTest {
 
     @Test
-    fun testWebSocket(context: TestContext) {
-        val async = context.async()
-
-        Vertx.vertx().createHttpClient().websocket(8081, "localhost", "/maslick") { response ->
-            println("connected: ${response.remoteAddress()}")
-            response.textMessageHandler { body ->
-                println("message: $body")
-            }
-        }
-
-        async.awaitSuccess(30000)
-    }
-
-    @Test
+    @Ignore
     fun testHttp(context: TestContext) {
         val async = context.async()
 

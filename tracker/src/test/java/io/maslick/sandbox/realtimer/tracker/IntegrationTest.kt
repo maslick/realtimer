@@ -24,7 +24,6 @@ class IntegrationTest {
         vertx = Vertx.vertx()
         vertx.deployVerticle(HttpServerVert(), context.asyncAssertSuccess())
         vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())), context.asyncAssertSuccess())
-        vertx.deployVerticle(WebsocketVert())
         vertx.eventBus()
                 .registerDefaultCodec(Data::class.java, DataMessageCodec())
                 .registerDefaultCodec(Event::class.java, EventMessageCodec())
@@ -43,6 +42,7 @@ class IntegrationTest {
             context.assertEquals(200, response.statusCode())
             response.bodyHandler { body ->
                 context.assertTrue(body.toString().contains("ok"))
+                context.assertFalse(body.toString().contains("false"))
                 async.complete()
             }
         }
