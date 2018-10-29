@@ -43,6 +43,14 @@ class IntegrationTest {
             response.bodyHandler { body ->
                 context.assertTrue(body.toString().contains("ok"))
                 context.assertFalse(body.toString().contains("false"))
+            }
+
+            vertx.eventBus().consumer<Event>("/propagator") { message ->
+                val id = message.body().accountId
+                val data = message.body().data
+                println("id: $id, data: $data")
+                context.assertEquals("maslick", id)
+                context.assertEquals("hello", data)
                 async.complete()
             }
         }

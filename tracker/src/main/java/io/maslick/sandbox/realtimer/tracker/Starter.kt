@@ -68,7 +68,6 @@ class RouterVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle(
 
 fun main(args: Array<String>) {
     println("Start app")
-    Json.mapper.registerModule(KotlinModule())
 
     val hazelcastConfig = Config()
     hazelcastConfig.networkConfig.join.multicastConfig.isEnabled = false
