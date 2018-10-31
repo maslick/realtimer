@@ -1,6 +1,5 @@
 package io.maslick.sandbox.realtimer.cli
 
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.hazelcast.config.Config
 import io.maslick.sandbox.realtimer.data.Data
 import io.maslick.sandbox.realtimer.data.DataMessageCodec
@@ -8,7 +7,6 @@ import io.maslick.sandbox.realtimer.data.Event
 import io.maslick.sandbox.realtimer.data.EventMessageCodec
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
-import io.vertx.core.json.Json
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 
 fun main(args: Array<String>) {
@@ -18,8 +16,6 @@ fun main(args: Array<String>) {
         println("Please, provide clientId as 1st argument")
         return
     }
-
-    Json.mapper.registerModule(KotlinModule())
 
     val hazelcastConfig = Config()
     hazelcastConfig.networkConfig.join.multicastConfig.isEnabled = false

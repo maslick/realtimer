@@ -1,30 +1,11 @@
-plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
-}
-
-
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.71"
+    testCompile "junit:junit:4.12"
+    testCompile "io.vertx:vertx-unit:$vertxVersion"
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'io.vertx:vertx-unit:3.5.4'
-
-    compile 'io.vertx:vertx-core:3.5.4'
-    compile 'io.vertx:vertx-hazelcast:3.5.4'
-
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-hazelcast:$vertxVersion"
 
     compile project(":data")
-}
-
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 jar {

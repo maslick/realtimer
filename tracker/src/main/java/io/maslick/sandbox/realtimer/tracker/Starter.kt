@@ -1,6 +1,5 @@
 package io.maslick.sandbox.realtimer.tracker
 
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.hazelcast.config.Config
 import io.maslick.sandbox.realtimer.data.Data
 import io.maslick.sandbox.realtimer.data.DataMessageCodec
@@ -10,7 +9,6 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.eventbus.EventBus
-import io.vertx.core.json.Json
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
