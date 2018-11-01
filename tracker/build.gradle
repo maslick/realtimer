@@ -20,6 +20,6 @@ jar {
 
     manifest {
         println "${project.group}"
-        attributes 'Main-Class': "${project.group}.tracker.StarterKt"
+        attributes 'Main-Class': "${project.group}.tracker.TrackerKt"
     }
 }

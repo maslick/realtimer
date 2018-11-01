@@ -9,9 +9,11 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.eventbus.EventBus
+import io.vertx.core.json.Json
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
+import java.util.*
 
 interface Repo {
     fun accountIdIsValid(accountId: String): Boolean
@@ -22,9 +24,13 @@ interface Propagator {
 }
 
 class FakeRepo : Repo {
+    private fun Pair<Int, Int>.random(): Long {
+        return this.first + Random().nextInt(this.second - this.first + 1).toLong()
+    }
+
     override fun accountIdIsValid(accountId: String): Boolean {
         println("blocking call")
-        Thread.sleep(1200)
+        Thread.sleep((400 to 500).random())
         return true
     }
 }
@@ -63,6 +69,26 @@ class RouterVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle(
     }
 }
 
+class WebsocketVert : AbstractVerticle() {
+    override fun start() {
+        val server = vertx.createHttpServer()
+        server.websocketHandler { wsServer ->
+            println("new ws socket connected: ${wsServer.path()}")
+
+            vertx.eventBus().consumer<Event>("/propagator") { message ->
+                if (message.body().accountId == wsServer.path().split("/")[1]) {
+                    wsServer.writeFinalTextFrame(Json.encode(message.body()))
+                    message.reply("ok")
+                }
+            }
+
+            wsServer.endHandler {
+                println("ws socket closed: ${wsServer.path()}")
+            }
+        }
+        server.listen(8081)
+    }
+}
 
 fun main(args: Array<String>) {
     println("Start app")
@@ -82,6 +108,7 @@ fun main(args: Array<String>) {
             val vertx = it.result()
             vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
             vertx.deployVerticle(HttpServerVert())
+            vertx.deployVerticle(WebsocketVert())
 
             vertx.eventBus()
                     .registerDefaultCodec(Data::class.java, DataMessageCodec())

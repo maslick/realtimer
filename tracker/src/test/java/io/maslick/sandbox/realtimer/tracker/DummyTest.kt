@@ -12,7 +12,7 @@ class DummyTest {
 
     @Test
     @Ignore
-    fun testHttp(context: TestContext) {
+    fun testHttpCall(context: TestContext) {
         val async = context.async()
 
         Vertx.vertx().createHttpClient().getNow(8080, "localhost", "/maslick?data=hello") { response ->
@@ -22,6 +22,21 @@ class DummyTest {
                 context.assertTrue(body.toString().contains("ok"))
                 context.assertFalse(body.toString().contains("false"))
                 async.complete()
+            }
+        }
+
+        async.awaitSuccess()
+    }
+
+    @Test
+    @Ignore
+    fun testWebSocketClient(context: TestContext) {
+        val async = context.async()
+
+        Vertx.vertx().createHttpClient().websocket(8081, "localhost", "/maslick") { response ->
+            println("connected: ${response.remoteAddress()}")
+            response.textMessageHandler { body ->
+                println("message: $body")
             }
         }
 
