@@ -1,6 +1,5 @@
 package io.maslick.sandbox.realtimer.tracker
 
-import com.hazelcast.config.Config
 import io.maslick.sandbox.realtimer.data.Data
 import io.maslick.sandbox.realtimer.data.DataMessageCodec
 import io.maslick.sandbox.realtimer.data.Event
@@ -12,7 +11,6 @@ import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.Json
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
-import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager
 import java.util.*
 
 interface Repo {
@@ -29,8 +27,7 @@ class FakeRepo : Repo {
     }
 
     override fun accountIdIsValid(accountId: String): Boolean {
-        println("blocking call")
-        Thread.sleep((400 to 500).random())
+        Thread.sleep((400 to 2000).random())
         return true
     }
 }
@@ -93,7 +90,6 @@ fun main(args: Array<String>) {
 
     val options = VertxOptions()
             .setClustered(true)
-            .setClusterManager(HazelcastClusterManager(Config()))
             .setWorkerPoolSize(200)
 
     Vertx.clusteredVertx(options) {

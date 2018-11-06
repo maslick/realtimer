@@ -13,7 +13,7 @@ The *CLI client* works as subscriber to an event bus.
 In the simplest scenario one can have one Tracker instance and multiple clients. Clients are fault-tolerant, meaning they operate regardless of whether the Tracker service is running or not (no restart needed). 
 
 **Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (I am using Hazelcast).
-These *Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant high-availability system.
+These *Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant and highly available system.
  
 [1] https://en.wikipedia.org/wiki/Vert.x 
 
@@ -45,7 +45,8 @@ $ echo "GET http://localhost:8080/testUserId?data=testData" | vegeta attack -dur
 #### 2. CLI client
 
 ```
-$ java -jar ws-client/build/libs/realtimer-ws.jar testUserId
+$ java -DuserId=testUserId -jar ws-client/build/libs/realtimer-ws.jar
+$ java -DuserId=testUserId -Daddress=ws://localhost:8081 -jar ws-client/build/libs/realtimer-ws.jar
 ```
 
 #### 3. Web browser client (web-socket)

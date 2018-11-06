@@ -46,6 +46,7 @@
 </body>
 
 <script>
+    var ws_address = "ws://localhost:8081/";
     var wss = null;
     document.getElementById("btn_disconnect").hidden = true;
     document.getElementById("btn_connect").hidden = false;
@@ -58,7 +59,7 @@
         document.getElementById("account_id").readOnly = true;
         var account_id = document.getElementById("account_id").value;
 
-        wss = new WebSocket("ws://localhost:8081/" + account_id);
+        wss = new WebSocket(ws_address + account_id);
 
         wss.onopen = function (e) { console.log("Connected."); };
 

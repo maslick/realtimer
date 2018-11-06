@@ -12,10 +12,18 @@ import java.util.*
 
 
 fun main(args: Array<String>) {
-    val userId = args[0]
-    wsObservable("ws://localhost:8081/$userId").subscribe {
-        println("${it.timestamp.formatDate()} message from ${it.accountId} : ${it.data}")
+    val addr = System.getProperty("address", "ws://localhost:8081")
+    val userId = System.getProperty("userId", null)
+
+    if (userId == null) {
+        println("Error: userId unset!..")
+        return
     }
+
+    wsObservable("$addr/$userId")
+            .subscribe {
+                println("${it.timestamp.formatDate()} message from ${it.accountId} : ${it.data}")
+            }
 }
 
 fun wsObservable(serverUri: String): Flowable<Event> {
