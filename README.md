@@ -45,16 +45,10 @@ $ echo "GET http://localhost:8080/testUserId?data=testData" | vegeta attack -dur
 #### 2. CLI client
 
 ```
-$ java -jar cli/build/libs/realtimer-cli.jar testUserId
-```
-
-#### 3. CLI client (web-socket)
-
-```
 $ java -jar ws-client/build/libs/realtimer-ws.jar testUserId
 ```
 
-#### 4. Web browser client (web-socket)
+#### 3. Web browser client (web-socket)
 
 ```
 $ open ws-client/html5client.html

@@ -71,8 +71,7 @@ class RouterVert(val repo: Repo, val propagator: Propagator) : AbstractVerticle(
 
 class WebsocketVert : AbstractVerticle() {
     override fun start() {
-        val server = vertx.createHttpServer()
-        server.websocketHandler { wsServer ->
+        vertx.createHttpServer().websocketHandler { wsServer ->
             println("new ws socket connected: ${wsServer.path()}")
 
             vertx.eventBus().consumer<Event>("/propagator") { message ->
@@ -85,22 +84,16 @@ class WebsocketVert : AbstractVerticle() {
             wsServer.endHandler {
                 println("ws socket closed: ${wsServer.path()}")
             }
-        }
-        server.listen(8081)
+        }.listen(8081)
     }
 }
 
 fun main(args: Array<String>) {
     println("Start app")
 
-    val hazelcastConfig = Config()
-    hazelcastConfig.networkConfig.join.multicastConfig.isEnabled = false
-    hazelcastConfig.networkConfig.join.tcpIpConfig.isEnabled = true
-    hazelcastConfig.networkConfig.join.tcpIpConfig.addMember("127.0.0.1")
-
     val options = VertxOptions()
             .setClustered(true)
-            .setClusterManager(HazelcastClusterManager(hazelcastConfig))
+            .setClusterManager(HazelcastClusterManager(Config()))
             .setWorkerPoolSize(200)
 
     Vertx.clusteredVertx(options) {
