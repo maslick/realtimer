@@ -27,7 +27,7 @@ class FakeRepo : Repo {
     }
 
     override fun accountIdIsValid(accountId: String): Boolean {
-        Thread.sleep((400 to 2000).random())
+        Thread.sleep((100 to 2000).random())
         return true
     }
 }
@@ -88,22 +88,12 @@ class WebsocketVert : AbstractVerticle() {
 fun main(args: Array<String>) {
     println("Start app")
 
-    val options = VertxOptions()
-            .setClustered(true)
-            .setWorkerPoolSize(200)
+    val vertx = Vertx.vertx(VertxOptions().setWorkerPoolSize(200))
+    vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
+    vertx.deployVerticle(HttpServerVert())
+    vertx.deployVerticle(WebsocketVert())
 
-    Vertx.clusteredVertx(options) {
-        if (it.succeeded()) {
-            val vertx = it.result()
-            vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
-            vertx.deployVerticle(HttpServerVert())
-            vertx.deployVerticle(WebsocketVert())
-
-            vertx.eventBus()
-                    .registerDefaultCodec(Data::class.java, DataMessageCodec())
-                    .registerDefaultCodec(Event::class.java, EventMessageCodec())
-        }
-
-        else println("Error creating a Vertx cluster")
-    }
+    vertx.eventBus()
+            .registerDefaultCodec(Data::class.java, DataMessageCodec())
+            .registerDefaultCodec(Event::class.java, EventMessageCodec())
 }
