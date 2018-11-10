@@ -6,14 +6,14 @@
  
 ![Realtimer architecture](realtimer.png)
  
-The *Tracker* module is a simple REST API you can call (via GET) to publish events.
+The *Tracker* module is a non-blocking REST API you can call to publish events (via GET).
 The *CLI client* works as subscriber to an event bus.
  
 **Realtimer** leverages Vert.x [1] - a distributed event bus backed by a simple concurrency model (node.js-like, non-blocking). 
-In the simplest scenario one can have one Tracker instance and multiple clients. Clients are fault-tolerant, meaning they operate regardless of whether the Tracker service is running or not (no restart needed). 
+In the simplest scenario one can have one Tracker instance and multiple clients. Clients are fault-tolerant, meaning they operate regardless of whether the Tracker service is running or not (clients restart connection automatically after 5 sec). 
 
-**Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (I am using Hazelcast).
-These *Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant and highly available system.
+**Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (Hazelcast, Apache Ignite).
+These *Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant and highly available system. Ideally, HttpServer and WebsocketServer verticles would be deployed to different containers (deployments) and can be scaled independently.
  
 [1] https://en.wikipedia.org/wiki/Vert.x 
 
