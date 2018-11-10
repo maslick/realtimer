@@ -66,6 +66,9 @@ $ open ws-client/html5client.html
 
 
 [1] https://en.wikipedia.org/wiki/Vert.x
+
 [2] https://github.com/kubernetes/minikube
+
 [3] http://gcr.io
+
 [4] https://github.com/tsenart/vegeta
