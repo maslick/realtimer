@@ -1,9 +1,7 @@
 package io.maslick.sandbox.realtimer.tracker
 
 import io.maslick.sandbox.realtimer.data.Data
-import io.maslick.sandbox.realtimer.data.DataMessageCodec
 import io.maslick.sandbox.realtimer.data.Event
-import io.maslick.sandbox.realtimer.data.EventMessageCodec
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions

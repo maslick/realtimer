@@ -4,6 +4,8 @@ dependencies {
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
+
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
     compile project(":data")
 }
 

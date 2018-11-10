@@ -1,6 +1,8 @@
-package io.maslick.sandbox.realtimer.data
+package io.maslick.sandbox.realtimer.tracker
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import io.maslick.sandbox.realtimer.data.Data
+import io.maslick.sandbox.realtimer.data.Event
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.eventbus.MessageCodec
 import io.vertx.core.eventbus.impl.codecs.StringMessageCodec

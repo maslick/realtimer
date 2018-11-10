@@ -1,4 +1,1 @@
-dependencies {
-    compile "io.vertx:vertx-core:$vertxVersion"
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
-}
+dependencies {}
