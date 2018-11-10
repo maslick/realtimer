@@ -7,23 +7,25 @@
 ![Realtimer architecture](realtimer.png)
  
 The *Tracker* module is a non-blocking REST API you can call to publish events (via GET).
-The *CLI client* works as subscriber to an event bus.
- 
-**Realtimer** leverages Vert.x [1] - a distributed event bus backed by a simple concurrency model (node.js-like, non-blocking). 
-In the simplest scenario one can have one Tracker instance and multiple clients. Clients are fault-tolerant, meaning they operate regardless of whether the Tracker service is running or not (clients restart connection automatically after 5 sec). 
 
-**Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (Hazelcast, Apache Ignite).
-These *Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant and highly available system. Ideally, ``HttpServerVert`` and ``WebsocketVert`` verticles would be deployed to different containers  and can be scaled independently.
+The *CLI client* works as subscriber to an event bus. It is using RxJava, generating a stream of Events (can be filtered, transformed, etc).
+
+**Realtimer** leverages Vert.x [1] - a distributed event bus backed by a simple concurrency model.
+In the simplest scenario one can have one ``Tracker`` service instance and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the ``Tracker`` service is running or not (clients reconnect automatically 5 sec after the connection is down).
+
+**Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (e.g. Hazelcast, Apache Ignite, etc).
+
+*Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant and highly available system. Ideally, ``HttpServerVert`` and ``WebsocketVert`` verticles would be deployed to different containers and can be scaled independently.
  
 [1] https://en.wikipedia.org/wiki/Vert.x 
 
 ## TO-DO list
 
+* Add Mongo as persistence layer (implement the ``Repo`` interface)
 * Put ``HttpServerVert`` and ``WebsocketVert`` to different modules (jars, Docker containers)
 * Use a cluster manager (Hazelcast, Apache Ignite, Zookeeper, Infinispan)
-* Add Mongo as persistence layer (implement the ``Repo`` interface)
 * Add Dockerfile, k8s configuration yaml (service: ``LoadBalancer``)
-* Test on minikube
+* Test on minikube (locally)
 * Deploy to Google Kubernetes Engine (use gcr.io as container registry)
 
 ## Installation
