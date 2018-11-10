@@ -22,7 +22,7 @@ In the simplest scenario one can have one ``Tracker`` service instance and multi
 ## TO-DO list
 
 * Add Mongo as persistence layer (implement the ``Repo`` interface)
-* Put ``HttpServerVert`` and ``WebsocketVert`` to different modules (jars, Docker containers)
+* Put ``HttpServerVert`` and ``WebsocketVert`` into different modules (jars, Docker containers)
 * Use a cluster manager (Hazelcast, Apache Ignite, Zookeeper, Infinispan)
 * Add Dockerfile, k8s configuration yaml (service: ``LoadBalancer``)
 * Test on minikube (locally)
