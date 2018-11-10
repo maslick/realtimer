@@ -72,7 +72,7 @@ class WebsocketVert : AbstractVerticle() {
             println("new ws socket connected: ${wsServer.path()}")
 
             vertx.eventBus().consumer<Event>("/propagator") { message ->
-                if (message.body().accountId == wsServer.path().split("/")[1]) {
+                if ("/ws" == wsServer.path()) {
                     wsServer.writeFinalTextFrame(Json.encode(message.body()))
                     message.reply("ok")
                 }
@@ -81,7 +81,9 @@ class WebsocketVert : AbstractVerticle() {
             wsServer.endHandler {
                 println("ws socket closed: ${wsServer.path()}")
             }
-        }.listen(8081)
+        }.listen(8081) {
+            println("web socket server started: ${it.result().actualPort()}")
+        }
     }
 }
 

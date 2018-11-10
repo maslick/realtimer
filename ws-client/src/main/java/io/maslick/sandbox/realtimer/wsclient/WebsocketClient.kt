@@ -12,7 +12,7 @@ import java.util.*
 
 
 fun main(args: Array<String>) {
-    val addr = System.getProperty("address", "ws://localhost:8081")
+    val addr = System.getProperty("address", "ws://localhost:8081/ws")
     val userId = System.getProperty("userId", null)
 
     if (userId == null) {
@@ -20,7 +20,8 @@ fun main(args: Array<String>) {
         return
     }
 
-    wsObservable("$addr/$userId")
+    wsObservable(addr)
+            .filter { it.accountId == userId }
             .subscribe {
                 println("${it.timestamp.formatDate()} message from ${it.accountId} : ${it.data}")
             }

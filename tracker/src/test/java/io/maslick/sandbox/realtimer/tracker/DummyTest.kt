@@ -33,7 +33,7 @@ class DummyTest {
     fun testWebSocketClient(context: TestContext) {
         val async = context.async()
 
-        Vertx.vertx().createHttpClient().websocket(8081, "localhost", "/maslick") { response ->
+        Vertx.vertx().createHttpClient().websocket(8081, "localhost", "/ws") { response ->
             println("connected: ${response.remoteAddress()}")
             response.textMessageHandler { body ->
                 println("message: $body")

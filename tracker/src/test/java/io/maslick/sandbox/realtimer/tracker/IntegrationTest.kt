@@ -69,7 +69,7 @@ class IntegrationTest {
         val async = context.async()
 
         // create ws client
-        vertx.createHttpClient().websocket(wsPort, "localhost", "/fakeUser") { response ->
+        vertx.createHttpClient().websocket(wsPort, "localhost", "/ws") { response ->
             println("connected: ${response.remoteAddress()}")
 
             response.textMessageHandler { body ->
