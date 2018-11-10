@@ -10,7 +10,7 @@ The *Tracker* module is a non-blocking REST API one can call to publish events (
 
 The *CLI client* works as subscriber to an event bus. It is using RxJava, generating a stream of Events (can be filtered, transformed, etc).
 
-**Realtimer** leverages Vert.x [1] - a distributed event bus backed by a simple concurrency model.
+**Realtimer** leverages [Vert.x][1] - a distributed event bus backed by a simple concurrency model.
 In the simplest scenario one can have one *Tracker service* instance and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the *Tracker service* is running or not (clients reconnect automatically 5 sec after the connection is down).
 
 **Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (e.g. Hazelcast, Apache Ignite, etc).
@@ -23,8 +23,8 @@ In the simplest scenario one can have one *Tracker service* instance and multipl
 * Put ``HttpServerVert`` and ``WebsocketVert`` into different modules (jars, Docker containers)
 * Use a cluster manager (Hazelcast, Apache Ignite, Zookeeper, Infinispan)
 * Add Dockerfile, k8s configuration yaml (service: ``LoadBalancer``)
-* Test on minikube [2] (locally)
-* Deploy to Google Kubernetes Engine (use gcr.io [3] as container registry)
+* Test on [minikube][2] (locally)
+* Deploy to Google Kubernetes Engine (use [gcr.io][3] as container registry)
 
 ## Installation
 
@@ -46,7 +46,7 @@ To fire a single GET request run:
 $ curl http://localhost:8080/testUserId?data=testData
 ```
 
-Performance test (using vegeta [4]):
+Performance test (using [vegeta][4]):
 ```
 $ echo "GET http://localhost:8080/testUserId?data=testData" | vegeta attack -duration=15s -rate=500 | vegeta report
 ```
@@ -64,12 +64,7 @@ $ java -DuserId=testUserId -Daddress=ws://localhost:8081 -jar ws-client/build/li
 $ open ws-client/html5client.html
 ```
 
-## Links
-
-[1] https://en.wikipedia.org/wiki/Vert.x
-
-[2] https://github.com/kubernetes/minikube
-
-[3] http://gcr.io
-
-[4] https://github.com/tsenart/vegeta
+[1]: https://en.wikipedia.org/wiki/Vert.x
+[2]: https://github.com/kubernetes/minikube
+[3]: http://gcr.io
+[4]: https://github.com/tsenart/vegeta
