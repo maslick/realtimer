@@ -5,6 +5,10 @@ dependencies {
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
 
+    compile "io.vertx:vertx-ignite:$vertxVersion"
+    compile "org.apache.ignite:ignite-core:$igniteVersion"
+    compile "org.apache.ignite:ignite-kubernetes:$igniteVersion"
+
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
     compile project(":data")
 }

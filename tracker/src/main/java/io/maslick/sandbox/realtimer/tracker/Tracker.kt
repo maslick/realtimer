@@ -9,6 +9,12 @@ import io.vertx.core.eventbus.EventBus
 import io.vertx.core.json.Json
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.spi.cluster.ignite.IgniteClusterManager
+import org.apache.ignite.configuration.IgniteConfiguration
+import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
+import org.apache.ignite.spi.discovery.tcp.ipfinder.kubernetes.TcpDiscoveryKubernetesIpFinder
+import java.net.Inet4Address
+import java.net.NetworkInterface
 import java.util.*
 
 interface Repo {
@@ -45,6 +51,7 @@ class HttpServerVert : AbstractVerticle() {
                 .handler { context ->
                     val id = context.request().getParam("id")
                     val data = context.queryParam("data")
+                    println("{user: $id, data: $data}")
                     vertx.eventBus().send("/router", Data(id, data[0]))
                     context.response().end("ok")
                 }
@@ -85,10 +92,31 @@ class WebsocketVert : AbstractVerticle() {
     }
 }
 
-fun main(args: Array<String>) {
-    println("Start app")
+fun getIgniteConfig(): IgniteConfiguration? {
+    val spi = TcpDiscoverySpi()
+    val ipFinder = TcpDiscoveryKubernetesIpFinder()
+    ipFinder.setServiceName("ignite-service")
+    spi.ipFinder = ipFinder
+    return IgniteConfiguration().setDiscoverySpi(spi)
+}
 
-    val vertx = Vertx.vertx(VertxOptions().setWorkerPoolSize(200))
+fun getMyIp(): String {
+    val localAddresses = arrayListOf<Inet4Address>()
+
+    NetworkInterface.getNetworkInterfaces().toList().forEach { i: NetworkInterface ->
+        i.inetAddresses.toList().forEach { addr ->
+            if (!addr.isLinkLocalAddress && addr is Inet4Address)
+                localAddresses.add(addr)
+        }
+    }
+
+    val publicClusterHost = localAddresses.map(Inet4Address::getHostAddress).first()
+    println("publicClusterHost: $publicClusterHost")
+
+    return publicClusterHost
+}
+
+fun deploy(vertx: Vertx) {
     vertx.deployVerticle(RouterVert(FakeRepo(), EventBusPropagator(vertx.eventBus())))
     vertx.deployVerticle(HttpServerVert())
     vertx.deployVerticle(WebsocketVert())
@@ -96,4 +124,27 @@ fun main(args: Array<String>) {
     vertx.eventBus()
             .registerDefaultCodec(Data::class.java, DataMessageCodec())
             .registerDefaultCodec(Event::class.java, EventMessageCodec())
+}
+
+fun setupCluster() {
+    val options = VertxOptions()
+            .setClustered(true)
+            .setClusterManager(IgniteClusterManager(getIgniteConfig()))
+            .setClusterHost(getMyIp())
+
+
+    Vertx.clusteredVertx(options) {
+        if (it.succeeded())
+            deploy(it.result())
+        else {
+            println("Error creating a Vertx cluster!")
+            System.exit(1);
+        }
+
+    }
+}
+
+fun main(args: Array<String>) {
+    println("Start app")
+    setupCluster()
 }
