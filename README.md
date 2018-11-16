@@ -15,7 +15,7 @@ In the simplest scenario one can have one *Tracker service* instance and multipl
 
 **Realtimer** is scalable. It is containerized (Docker) and can be scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (Apache Ignite is used).
 
-*Tracker* instances are split into http service and websocket server. Both are put behind a load-balancer (so that they can be scaled independently), forming a distributed, fault-tolerant and highly available system.
+*Tracker* instances are split into two separate modules (HTTP, Web socket) so that they can be scaled independently. Each has its' own load-balancer, forming a distributed, fault-tolerant and highly-available system.
 
 ## TO-DO list
 
@@ -89,8 +89,15 @@ $ kubectl get service realtimer-http-service
 
 Do some load testing and display the results: 
 ```
-$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/testUserId?data=testdata" | vegeta attack -rate=500 -duration=30s | tee results.bin | vegeta report
-$ cat results.bin | vegeta report -type="hist[0,50ms,100ms,200ms,300ms,5s]"
+$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/testUserId?data=testdata" | vegeta attack -rate=500 -duration=5m | tee results.bin | vegeta report
+$ cat results.bin | vegeta report -type="hist[0,50ms,100ms,200ms,300ms,1s]"
+Bucket           #      %       Histogram
+[0s,     50ms]   91358  60.91%  #############################################
+[50ms,   100ms]  58001  38.67%  #############################
+[100ms,  200ms]  592    0.39%
+[200ms,  300ms]  8      0.01%
+[300ms,  1s]     27     0.02%
+[1s,     +Inf]   14     0.01%
 $ cat results.bin | vegeta plot > plot.html
 $ open plot.html
 ```
