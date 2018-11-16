@@ -7,11 +7,7 @@
  
 ![Realtimer architecture](realtimer.png)
  
-The *Tracker* module is a non-blocking REST API one can call to publish events (via GET).
-
-*Mongo db* module provides the persistence layer.
-
-*CLI client* works as subscriber to an event bus. It is using RxJava, generating a stream of Events (can be filtered, transformed, etc).
+The *Tracker* module is a non-blocking REST API one can call to publish events (via GET). *Mongo db* module provides the persistence layer. *CLI client* works as subscriber to an event bus. It is using RxJava, generating a stream of Events (can be filtered, transformed, etc).
 
 **Realtimer** leverages [Vert.x][1] - a distributed event bus backed by a simple concurrency model.
 In the simplest scenario one can have a *Tracker service* instance, a database and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the *Tracker service* is running or not (clients reconnect automatically 5 sec after the connection is down).
