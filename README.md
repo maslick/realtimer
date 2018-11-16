@@ -63,7 +63,7 @@ Build docker images and push them to the Google Container Registry:
 ```
 $ cd tracker && docker build -t pmaslov/realtimer-http:0.1 .
 $ cd ../ws-server && docker build -t pmaslov/realtimer-ws:0.1 .
-$ cd ../mongo && docker build -t pmaslov/realtimer-db:0.1
+$ cd ../mongo && docker build -t pmaslov/realtimer-db:0.1 .
 
 $ docker tag pmaslov/realtimer-http:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-http:0.1
 $ docker tag pmaslov/realtimer-ws:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-ws:0.1
