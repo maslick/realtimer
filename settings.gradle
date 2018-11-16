@@ -3,3 +3,4 @@ rootProject.name = 'realtimer'
 include "data"
 include "tracker"
 include 'ws-client'
+include 'ws-server'

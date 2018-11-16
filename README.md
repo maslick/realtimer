@@ -13,18 +13,13 @@ The *CLI client* works as subscriber to an event bus. It is using RxJava, genera
 **Realtimer** leverages [Vert.x][1] - a distributed event bus backed by a simple concurrency model.
 In the simplest scenario one can have one *Tracker service* instance and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the *Tracker service* is running or not (clients reconnect automatically 5 sec after the connection is down).
 
-**Realtimer** is scalable. It can be containerized (Docker) and scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (e.g. Hazelcast, Apache Ignite, etc).
+**Realtimer** is scalable. It is containerized (Docker) and can be scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (Apache Ignite is used).
 
-*Tracker* instances can be put behind a load-balancer (provided by k8s), forming a distributed, fault-tolerant and highly available system. Ideally, ``HttpServerVert`` and ``WebsocketVert`` verticles would be deployed to different containers and can be scaled independently.
+*Tracker* instances are split into http service and websocket server. Both are put behind a load-balancer (so that they can be scaled independently), forming a distributed, fault-tolerant and highly available system.
 
 ## TO-DO list
 
 * Add Mongo as persistence layer (implement the ``Repo`` interface)
-* Put ``HttpServerVert`` and ``WebsocketVert`` into different modules (jars, Docker containers)
-* Use a cluster manager (Hazelcast, Apache Ignite, Zookeeper, Infinispan)
-* Add Dockerfile, k8s configuration yaml (service: ``LoadBalancer``)
-* Test on [minikube][2] (locally)
-* Deploy to Google Kubernetes Engine (use [gcr.io][3] as container registry)
 
 ## Installation
 
@@ -62,6 +57,48 @@ $ java -DuserId=testUserId -Daddress=ws://localhost:8081 -jar ws-client/build/li
 
 ```
 $ open ws-client/html5client.html
+```
+
+## High availability cluster (kubernetes)
+
+Build docker images and push them to the Google Container Registry:
+```
+$ cd tracker && docker build -t pmaslov/realtimer-http:0.1 .
+$ cd ../ws-server && docker build -t pmaslov/realtimer-ws:0.1 .
+$ docker tag pmaslov/realtimer-http:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-http:0.1
+$ docker tag pmaslov/realtimer-ws:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-ws:0.1
+
+$ docker push eu.gcr.io/[PROJECT-ID]/realtimer-http:0.1
+$ docker push eu.gcr.io/[PROJECT-ID]/realtimer-ws:0.1
+``` 
+
+Create and connect to your k8s cluster:
+```
+$ gcloud container clusters get-credentials [CLUSTER-NAME] --zone europe-west3-c --project [PROJECT-ID]
+```
+
+Deploy k8s configuration to your cluster
+```
+$ kubectl create -f kuber.yaml
+```
+
+Find your service's external IP:
+```
+$ kubectl get service realtimer-http-service
+```
+
+Do some load testing and display the results: 
+```
+$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/testUserId?data=testdata" | vegeta attack -rate=500 -duration=30s | tee results.bin | vegeta report
+$ cat results.bin | vegeta report -type="hist[0,50ms,100ms,200ms,300ms,5s]"
+$ cat results.bin | vegeta plot > plot.html
+$ open plot.html
+```
+
+Find your web socket service IP and connect to it from the CLI-client:
+```
+$ kubectl get service realtimer-ws-service
+$ java -DuserId=maslick -Daddress=ws://[WS-SERVICE-IP]:[WS-SERVICE-PORT]/ws -jar ws-client/build/libs/realtimer-ws.jar
 ```
 
 [1]: https://en.wikipedia.org/wiki/Vert.x

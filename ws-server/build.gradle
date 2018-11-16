@@ -1,0 +1,29 @@
+dependencies {
+    testCompile "junit:junit:4.12"
+    testCompile "io.vertx:vertx-unit:$vertxVersion"
+
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
+
+    compile "io.vertx:vertx-ignite:$vertxVersion"
+    compile "org.apache.ignite:ignite-core:$igniteVersion"
+    compile "org.apache.ignite:ignite-kubernetes:$igniteVersion"
+
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
+    compile project(":data")
+}
+
+jar {
+    archiveName = 'realtimer-ws.jar'
+
+    from {
+        configurations
+                .compile
+                .collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    manifest {
+        println "${project.group}"
+        attributes 'Main-Class': "${project.group}.ws.WsServerKt"
+    }
+}
