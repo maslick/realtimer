@@ -1,23 +1,28 @@
 # =realtimer=
 
-**Realtimer** is comprised of 2 modules:
+**Realtimer** is comprised of 3 modules:
  * *Tracker service*
+ * *Mongo db*
  * *CLI client*
  
 ![Realtimer architecture](realtimer.png)
  
 The *Tracker* module is a non-blocking REST API one can call to publish events (via GET).
 
-The *CLI client* works as subscriber to an event bus. It is using RxJava, generating a stream of Events (can be filtered, transformed, etc).
+*Mongo db* module provides the persistence layer.
+
+*CLI client* works as subscriber to an event bus. It is using RxJava, generating a stream of Events (can be filtered, transformed, etc).
 
 **Realtimer** leverages [Vert.x][1] - a distributed event bus backed by a simple concurrency model.
-In the simplest scenario one can have one *Tracker service* instance and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the *Tracker service* is running or not (clients reconnect automatically 5 sec after the connection is down).
+In the simplest scenario one can have a *Tracker service* instance, a database and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the *Tracker service* is running or not (clients reconnect automatically 5 sec after the connection is down).
 
 **Realtimer** is scalable. It is containerized (Docker) and can be scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (Apache Ignite is used).
 
-*Tracker* instances are split into two separate modules (HTTP, Web socket) so that they can be scaled independently. Each has its' own load-balancer, forming a distributed, fault-tolerant and highly-available system.
+*Tracker* instances are split into three separate modules (HTTP, Web socket, Mongo) so that they can be scaled independently. Each has its' own load-balancer, forming a distributed, fault-tolerant and highly-available system.
 
 ## TO-DO list
+
+* Improve the *CLI client's* user experience
 
 ## Installation
 
