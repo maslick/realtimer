@@ -19,8 +19,6 @@ In the simplest scenario one can have one *Tracker service* instance and multipl
 
 ## TO-DO list
 
-* Add Mongo as persistence layer (implement the ``Repo`` interface)
-
 ## Installation
 
 ```
@@ -49,8 +47,8 @@ $ echo "GET http://localhost:8080/testUserId?data=testData" | vegeta attack -dur
 #### 2. CLI client
 
 ```
-$ java -DuserId=testUserId -jar ws-client/build/libs/realtimer-ws.jar
-$ java -DuserId=testUserId -Daddress=ws://localhost:8081 -jar ws-client/build/libs/realtimer-ws.jar
+$ java -DuserId=testUserId -jar ws-client/build/libs/realtimer-cli.jar
+$ java -DuserId=testUserId -Daddress=ws://localhost:8081 -jar ws-client/build/libs/realtimer-cli.jar
 ```
 
 #### 3. Web browser client (web-socket)
@@ -65,11 +63,15 @@ Build docker images and push them to the Google Container Registry:
 ```
 $ cd tracker && docker build -t pmaslov/realtimer-http:0.1 .
 $ cd ../ws-server && docker build -t pmaslov/realtimer-ws:0.1 .
+$ cd ../mongo && docker build -t pmaslov/realtimer-db:0.1
+
 $ docker tag pmaslov/realtimer-http:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-http:0.1
 $ docker tag pmaslov/realtimer-ws:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-ws:0.1
+$ docker tag pmaslov/realtimer-db:0.1 eu.gcr.io/[PROJECT-ID]/realtimer-db:0.1
 
 $ docker push eu.gcr.io/[PROJECT-ID]/realtimer-http:0.1
 $ docker push eu.gcr.io/[PROJECT-ID]/realtimer-ws:0.1
+$ docker push eu.gcr.io/[PROJECT-ID]/realtimer-db:0.1
 ``` 
 
 Create and connect to your k8s cluster:
@@ -89,15 +91,16 @@ $ kubectl get service realtimer-http-service
 
 Do some load testing and display the results: 
 ```
-$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/testUserId?data=testdata" | vegeta attack -rate=500 -duration=5m | tee results.bin | vegeta report
-$ cat results.bin | vegeta report -type="hist[0,50ms,100ms,200ms,300ms,1s]"
-Bucket           #      %       Histogram
-[0s,     50ms]   91358  60.91%  #############################################
-[50ms,   100ms]  58001  38.67%  #############################
-[100ms,  200ms]  592    0.39%
-[200ms,  300ms]  8      0.01%
-[300ms,  1s]     27     0.02%
-[1s,     +Inf]   14     0.01%
+$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/testUserId?data=testdata" | vegeta attack -rate=500 -duration=1m | tee results.bin | vegeta report
+$ cat results.bin | vegeta report -type="hist[0,50ms,100ms,200ms,300ms,1s,5s]"
+  Bucket           #      %       Histogram
+  [0s,     50ms]   20488  68.29%  ###################################################
+  [50ms,   100ms]  9392   31.31%  #######################
+  [100ms,  200ms]  119    0.40%
+  [200ms,  300ms]  1      0.00%
+  [300ms,  1s]     0      0.00%
+  [1s,     5s]     0      0.00%
+  [5s,     +Inf]   0      0.00%
 $ cat results.bin | vegeta plot > plot.html
 $ open plot.html
 ```
@@ -105,7 +108,7 @@ $ open plot.html
 Find your web socket service IP and connect to it from the CLI-client:
 ```
 $ kubectl get service realtimer-ws-service
-$ java -DuserId=maslick -Daddress=ws://[WS-SERVICE-IP]:[WS-SERVICE-PORT]/ws -jar ws-client/build/libs/realtimer-ws.jar
+$ java -DuserId=maslick -Daddress=ws://[WS-SERVICE-IP]:[WS-SERVICE-PORT]/ws -jar ws-client/build/libs/realtimer-cli.jar
 ```
 
 [1]: https://en.wikipedia.org/wiki/Vert.x

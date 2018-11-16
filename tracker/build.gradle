@@ -11,6 +11,7 @@ dependencies {
 
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
     compile project(":data")
+    compile project(":cluster")
 }
 
 jar {
@@ -24,6 +25,6 @@ jar {
 
     manifest {
         println "${project.group}"
-        attributes 'Main-Class': "${project.group}.tracker.TrackerKt"
+        attributes 'Main-Class': "${project.group}.tracker.Starter"
     }
 }
