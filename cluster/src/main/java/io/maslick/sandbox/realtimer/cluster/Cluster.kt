@@ -46,10 +46,13 @@ class Cluster(val verticles: List<Verticle>) {
     }
 
     fun run() {
-        val options = VertxOptions()
+        var options = VertxOptions()
                 .setClustered(true)
                 .setClusterManager(IgniteClusterManager(getIgniteConfig()))
                 .setClusterHost(getMyIp())
+
+        if (System.getProperty("env", "prod") == "test")
+            options = VertxOptions().setClustered(true)
 
         Vertx.clusteredVertx(options) {
             if (it.succeeded())

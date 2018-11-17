@@ -30,26 +30,28 @@ $ ./gradlew clean build
 ## Usage
 #### 1. Tracker
 
-Start the server (tracker):
+Start the HTTP server, WebSocket server and Mongo verticles in test mode:
 ```
-$ java -jar tracker/build/libs/realtimer.jar
+$ java -Denv=test -jar tracker/build/libs/realtimer.jar
+$ java -Denv=test -jar ws-server/build/libs/realtimer-ws.jar
+$ java -Denv=test -jar mongo/build/libs/realtimer-db.jar
 ```
 
 To fire a single GET request run:
 ```
-$ curl http://localhost:8080/testUserId?data=testData
+$ curl http://localhost:8080/maslick?data=testData
 ```
 
 Performance test (using [vegeta][4]):
 ```
-$ echo "GET http://localhost:8080/testUserId?data=testData" | vegeta attack -duration=15s -rate=500 | vegeta report
+$ echo "GET http://localhost:8080/maslick?data=testData" | vegeta attack -duration=25s -rate=500 | vegeta report
 ```
 
 #### 2. CLI client
 
 ```
 $ java -DuserId=testUserId -jar ws-client/build/libs/realtimer-cli.jar
-$ java -DuserId=testUserId -Daddress=ws://localhost:8081 -jar ws-client/build/libs/realtimer-cli.jar
+$ java -DuserId=maslick -Daddress=ws://localhost:8081 -jar ws-client/build/libs/realtimer-cli.jar
 ```
 
 #### 3. Web browser client (web-socket)
@@ -75,7 +77,7 @@ $ docker push eu.gcr.io/[PROJECT-ID]/realtimer-ws:0.1
 $ docker push eu.gcr.io/[PROJECT-ID]/realtimer-db:0.1
 ``` 
 
-Create and connect to your k8s cluster:
+Create your k8s cluster and attach to it:
 ```
 $ gcloud container clusters create my-cluster --zone=europe-west3-a --machine-type=n1-highcpu-4 --num-nodes=2
 $ gcloud container clusters get-credentials [CLUSTER-NAME] --zone europe-west3-c --project [PROJECT-ID]
