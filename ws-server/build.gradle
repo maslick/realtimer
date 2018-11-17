@@ -1,4 +1,8 @@
 dependencies {
+    testCompile "junit:junit:4.12"
+    testCompile "io.vertx:vertx-unit:$vertxVersion"
+    testCompile 'com.google.code.gson:gson:2.8.5'
+
     compile project(":data")
     compile project(":cluster")
 
