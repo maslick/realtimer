@@ -1,5 +1,6 @@
 package io.maslick.sandbox.realtimer.tracker
 
+import io.maslick.sandbox.realtimer.cluster.Cluster
 import io.maslick.sandbox.realtimer.data.Data
 import io.maslick.sandbox.realtimer.data.Event
 import io.vertx.core.AbstractVerticle
@@ -36,4 +37,8 @@ class RouterVert : AbstractVerticle() {
             }
         }
     }
+}
+
+fun main(args: Array<String>) {
+    Cluster(listOf(HttpServerVert(), RouterVert())).run()
 }

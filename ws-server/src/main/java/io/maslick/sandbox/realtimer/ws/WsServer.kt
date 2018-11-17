@@ -1,5 +1,6 @@
 package io.maslick.sandbox.realtimer.ws
 
+import io.maslick.sandbox.realtimer.cluster.Cluster
 import io.maslick.sandbox.realtimer.data.Event
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.json.Json
@@ -23,4 +24,8 @@ class WebsocketVert : AbstractVerticle() {
             println("web socket server started: ${it.result().actualPort()}")
         }
     }
+}
+
+fun main(args: Array<String>) {
+    Cluster(listOf(WebsocketVert())).run()
 }

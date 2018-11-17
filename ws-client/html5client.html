@@ -42,17 +42,21 @@
     <button id="btn_clear">Clear</button>
 </div>
 <div id="messages"></div>
+<div id="counter"></div>
 
 </body>
 
 <script>
-    var ws_address = "ws://localhost:8081/ws";
+    var counter = 0;
+    var ws_address = "ws://35.246.206.181:81/ws";
     var wss = null;
     document.getElementById("btn_disconnect").hidden = true;
     document.getElementById("btn_connect").hidden = false;
 
 
     document.getElementById("btn_connect").onclick = function (e) {
+        counter = 0;
+        document.getElementById("messages").textContent = "";
         document.getElementById("btn_connect").hidden = true;
         document.getElementById("btn_disconnect").hidden = false;
         var account_id = document.getElementById("account_id").value;
@@ -62,15 +66,16 @@
         wss.onopen = function (e) { console.log("Connected."); };
 
         wss.onmessage = function (message) {
-            console.log(message.data);
             el = document.getElementById("messages");
             json = JSON.parse(message.data);
 
             if (account_id === "" || account_id == null)
                 el.textContent = message.data + el.textContent;
             else {
-                if (json.accountId === account_id)
-                    el.textContent = message.data + el.textContent;
+                if (json.accountId === account_id) {
+                    counter ++;
+                    el.textContent = counter;
+                }
             }
         };
 

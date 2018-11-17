@@ -25,6 +25,6 @@ jar {
 
     manifest {
         println "${project.group}"
-        attributes 'Main-Class': "${project.group}.tracker.Starter"
+        attributes 'Main-Class': "${project.group}.tracker.TrackerKt"
     }
 }

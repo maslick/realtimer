@@ -1,5 +1,6 @@
 package io.maslick.sandbox.realtimer.mongo
 
+import io.maslick.sandbox.realtimer.cluster.Cluster
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.mongo.MongoClient
@@ -39,4 +40,8 @@ class MongoVerticle : AbstractVerticle() {
             }
         }
     }
+}
+
+fun main(args: Array<String>) {
+    Cluster(listOf(MongoVerticle())).run()
 }

@@ -17,6 +17,6 @@ jar {
 
     manifest {
         println "${project.group}"
-        attributes 'Main-Class': "${project.group}.ws.Starter"
+        attributes 'Main-Class': "${project.group}.ws.WsServerKt"
     }
 }
