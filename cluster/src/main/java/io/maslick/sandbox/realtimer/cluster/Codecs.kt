@@ -1,4 +1,4 @@
-package io.maslick.sandbox.realtimer.tracker
+package io.maslick.sandbox.realtimer.cluster
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import io.maslick.sandbox.realtimer.data.Data

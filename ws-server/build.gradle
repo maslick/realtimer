@@ -1,0 +1,22 @@
+dependencies {
+    compile project(":data")
+    compile project(":cluster")
+
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
+}
+
+jar {
+    archiveName = 'realtimer-ws.jar'
+
+    from {
+        configurations
+                .compile
+                .collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    manifest {
+        println "${project.group}"
+        attributes 'Main-Class': "${project.group}.ws.WsServerKt"
+    }
+}

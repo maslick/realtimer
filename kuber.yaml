@@ -1,0 +1,142 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: ignite-rbac
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ignite-service
+spec:
+  clusterIP: None
+  ports:
+  - port: 9042
+  selector:
+    app: ignite
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtimer-http
+spec:
+  selector:
+    matchLabels:
+      run: realtimer-http
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        run: realtimer-http
+        app: ignite
+    spec:
+      containers:
+      - name: realtimer-http-container
+        image: eu.gcr.io/realtimer-220206/realtimer-http:0.3
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realtimer-http-service
+spec:
+  selector:
+    run: realtimer-http
+  ports:
+  - name: rest
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtimer-ws
+spec:
+  selector:
+    matchLabels:
+      run: realtimer-ws
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: realtimer-ws
+        app: ignite
+    spec:
+      containers:
+      - name: realtimer-ws-container
+        image: eu.gcr.io/realtimer-220206/realtimer-ws:0.3
+        ports:
+        - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realtimer-ws-service
+spec:
+  selector:
+    run: realtimer-ws
+  ports:
+  - name: ws
+    port: 81
+    targetPort: 8081
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  selector:
+    matchLabels:
+      run: mongo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    run: mongo
+spec:
+  selector:
+    run: mongo
+  ports:
+  - port: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtimer-db
+spec:
+  selector:
+    matchLabels:
+      run: realtimer-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: realtimer-db
+        app: ignite
+    spec:
+      containers:
+      - name: realtimer-db-container
+        image: eu.gcr.io/realtimer-220206/realtimer-db:0.3
