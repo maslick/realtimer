@@ -29,6 +29,15 @@ $ ./gradlew clean build
 
 ## Usage
 #### 1. Tracker
+For local testing edit your ``/etc/hosts`` and add the following line:
+```
+127.0.0.1	mongo
+```
+
+Make sure mongodb is up and running on a standard port (27017):
+```
+$ brew services start mongo
+```
 
 Start the HTTP server, WebSocket server and Mongo verticles in test mode:
 ```
