@@ -41,7 +41,7 @@ $ brew services start mongo
 
 Start the HTTP server, WebSocket server and Mongo verticles in test mode:
 ```
-$ java -Denv=test -jar tracker/build/libs/realtimer.jar
+$ java -Denv=test -jar tracker/build/libs/realtimer-http.jar
 $ java -Denv=test -jar ws-server/build/libs/realtimer-ws.jar
 $ java -Denv=test -jar mongo/build/libs/realtimer-db.jar
 ```
@@ -104,7 +104,7 @@ $ kubectl get service realtimer-http-service
 
 Do some load testing and display the results: 
 ```
-$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/testUserId?data=testdata" | vegeta attack -rate=500 -duration=1m | tee results.bin | vegeta report
+$ echo "GET http://[SERVICE-IP]:[SERVICE-PORT]/maslick?data=testdata" | vegeta attack -rate=500 -duration=1m | tee results.bin | vegeta report
 $ cat results.bin | vegeta report -type="hist[0,50ms,100ms,200ms,300ms,1s,5s]"
   Bucket           #      %       Histogram
   [0s,     50ms]   20488  68.29%  ###################################################
