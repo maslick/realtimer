@@ -12,9 +12,9 @@ The *Tracker* module is a non-blocking REST API one can call to publish events (
 **Realtimer** leverages [Vert.x][1] - a distributed event bus backed by a simple concurrency model.
 In the simplest scenario one can have a *Tracker service* instance, a database and multiple websocket clients. Clients are fault-tolerant, meaning they operate regardless of whether the *Tracker service* is running or not (clients reconnect automatically 5 sec after the connection is down).
 
-**Realtimer** is scalable. It is containerized (Docker) and can be scaled up in a Kubernetes cluster. Multiple *Tracker* instances (running on different nodes) share the exact-same event bus. This is achieved by using a cluster manager (Apache Ignite is used).
+**Realtimer** is scalable. It is containerized (Docker) and can be scaled up in a Kubernetes cluster. Multiple *Tracker* instances running on different nodes share the exact-same event bus. This is achieved by using a cluster manager (Apache Ignite).
 
-*Tracker* instances are split into three separate modules (HTTP, Web socket, Mongo) so that they can be scaled independently. Each has its' own load-balancer, forming a distributed, fault-tolerant and highly-available system.
+*Tracker* instances are split into three separate modules (HTTP, Web socket and Mongo) so that they can be scaled independently. Each has its' own load-balancer (except for ``mongo`` which is only reachable from within the cluster), forming a distributed, fault-tolerant and highly-available system.
 
 ## TO-DO list
 
