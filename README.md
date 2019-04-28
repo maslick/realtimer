@@ -91,7 +91,7 @@ Create your k8s cluster and attach to it:
 $ gcloud init
 $ gcloud projects create [PROJECT-ID]
 $ gcloud config set project [PROJECT-ID]
-$ gcloud container clusters create my-cluster --zone=europe-west3-a --machine-type=n1-highcpu-4 --num-nodes=2
+$ gcloud container clusters create [CLUSTER-NAME] --zone=europe-west3-a --machine-type=n1-highcpu-4 --num-nodes=2
 $ gcloud container clusters get-credentials [CLUSTER-NAME] --zone europe-west3-c --project [PROJECT-ID]
 ```
 
