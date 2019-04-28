@@ -88,6 +88,7 @@ $ docker push eu.gcr.io/[PROJECT-ID]/realtimer-db:0.1
 
 Create your k8s cluster and attach to it:
 ```
+$ gcloud init
 $ gcloud container clusters create my-cluster --zone=europe-west3-a --machine-type=n1-highcpu-4 --num-nodes=2
 $ gcloud container clusters get-credentials [CLUSTER-NAME] --zone europe-west3-c --project [PROJECT-ID]
 ```
